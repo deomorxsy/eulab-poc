@@ -5,6 +5,7 @@ initrd/
 # kernel source code
 */linux-6.6.22.tar.xz
 */linux-6.6.22/
+*/busybox-*/
 
 # error logs
 logs/

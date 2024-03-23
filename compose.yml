@@ -1,0 +1,10 @@
+version: "3.8"
+services:
+  busybox:
+    build:
+      context: "./utils/busybox/"
+    stop_signal: SIGINT
+  kernel:
+    build:
+      context: "./utils/kernel/"
+    stop_signal: SIGINT

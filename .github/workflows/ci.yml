@@ -1,0 +1,20 @@
+name: eulab build
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    # spin up an ubuntu vm
+    runs-on: ubuntu-22.04
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v4
+      # make build triggers linux + busybox
+      - name: build app
+        run: make build
+      # boot on qemu.
+      - name: boot app on qemu
+        run: make boot
+

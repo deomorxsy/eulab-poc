@@ -1,5 +1,5 @@
 # eulab-poc
-> simple early userspace lab setup for linux kernel dev with qemu
+> simple early userspace lab proof-of-concept for linux kernel dev with qemu and busybox
 
 ## Prerequisites
 1. Get the [kernel](kernel.org) source and place it inside the ./kernel directory.
