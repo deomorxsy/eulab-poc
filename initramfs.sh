@@ -15,7 +15,8 @@ function getkernel() {
 	# or simply make -f
 	cd ./utils/kernel/linux-${KERNEL_VERSION}/ || exit
 	make defconfig
-	make kvmconfig
+    #make kvmconfig removed after Linux 5.10
+    make kvm_guest.config
 	make olddefconfig
 	make bzImage
 	make -j2
@@ -62,8 +63,8 @@ cp -a ./utils/busybox/busybox-1.36.1/_install/* ./ramdisk/
 cat > ./ramdisk/init <<EOF
 #!/bin/busybox sh
 mount -t devtmpfs   devtmpfs    /dev
-mount -t proc       proc        /proc
-mount -t sysfs      sysfs       /sys
+mount -t proc       none        /proc
+mount -t sysfs      none       /sys
 mount -t tmpfs      tmpfs       /tmp
 
 sysctl -w kernel.printk="2 4 1 7"
@@ -75,26 +76,28 @@ EOF
 #'
 
 # append ASCII art
-cat >> ./ramdisk/init <<EOF
-/***
- *      _ _
- *     | (_)
- *     | |_ _ __  _   ___  __
- *     | | | '_ \| | | \ \/ /
- *     | | | | | | |_| |>  <
- *     |_|_|_| |_|\__,_/_/\_\
- *
- *
- */ Boot took $(cut -d' ' -f1 /proc/uptime) seconds btw
+cat >> ./ramdisk/init <<"EOF"
+
+printf "\nASCIIart didn't go well...
+Boot took $(cut -d' ' -f1 /proc/uptime) seconds btw\n
+"
 
 # get a shell
 sh
 EOF
 
 chmod +x ./ramdisk/init
-find ./ramdisk/ -print0 | busybox cpio --null --create --verbose --format=newc | gzip --best > ./initramfz.cpio.gz
+cd ./ramdisk/ || return
+#find . -print0 | busybox cpio --null --create --verbose --format=newc | gzip --best > ./initramfz.cpio.gz
+find . -print0 | busybox cpio --null -ov --format=newc | gzip -9 > ../initramfs.cpio.gz
+cd - || return
 #printf "cadeeeeeeeee\n"
 
+}
+
+function sparseFile() {
+    dd if=/dev/zero of=./utils/storage/kernel-hd bs=1M count=2048
+    mkfs.ext4 ./utils/storage/kernel-hd
 }
 
 function qemuit() {
@@ -102,10 +105,12 @@ function qemuit() {
 	# initramfs-custom2.img created with arch-mkinitcpio.
 	qemu-system-x86_64 \
 		-kernel ./bzImage \
-		-initrd ./initramfz.cpio.gz \
-		-m 1G \
+		-initrd ./initramfs.cpio.gz \
+		-m 1024 \
 		-append 'console=ttyS0' \
+        -nographic \
 		-no-reboot \
+        -drive file=./utils/storage/kernel-hd,format=raw
 	#-action panic=-1
 }
 
