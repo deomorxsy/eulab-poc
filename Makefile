@@ -1,37 +1,31 @@
-# include shellscripts
-include ./ramdisk-labs/bubo-initramfs/initramfs.sh
-include ./ramdisk-labs/bubo-initramfs/qemustart.sh
-include ./ramdisk-labs/initrd/bubo.sh
-include ./ramdisk-labs/initrd/getkernel.sh
+SHELL=/bin/bash
 
-.PHONY:
-	build
-	boot
+getkernel=$(shell source ./initramfs.sh; getkernel)
+bubo=$(shell source ./initramfs.sh; bubo)
+initgen=$(shell source ./initramfs.sh; initgen)
+qemuit=$(shell source ./initramfs.sh; qemuit)
+vacuum=$(shell source ./initramfs.sh; vacuum)
 
-all:
-	build
+build: kernel busybox
+	@echo "Building..."
 
-build:
-	@echo "Building...\n"
+kernel:
+	@echo "invoking linux..."
+	@$(call getkernel) # builds the kernel and generates bzImage
 
-	@echo "=== linux ==="
-    @$(call getkernel)
+busybox:
+	@echo "invoking busybox..."
+	@$(call bubo) # builds a static busybox ELF with musl-gcc
 
-	@echo "=== busybox ==="
-    @$(call bubo $(BUBO_PATH)) # function inside bubo.sh script
+artifact:
+	@echo "Generating initramfs..."
+	@$(call initgen)
 
-	@echo "=== initgen ==="
-	@$(call initgen) # function inside initramfs.sh script
+boot: initramfz.cpio.gz bzImage
+	@echo "Booting on QEMU..."
+	@$(call qemuit) # boots the kernel with the initramfs on QEMU
 
-	@echo "=== setup sparse file ==="
-	@$(call sparse) # function inside qemustart.sh script
-
-
-boot:
-	@echo "Booting on QEMU...\n"
-	@$(call qemuit) # function inside qemustart.sh script
-
+.PHONY: build
 clean:
-	rm -rf ./utils/kernel/linux-*
-	rm -rf ./utils/busybox/*
-
+	@echo "Cleaning..."
+	@$(call vacuum) # cleans the build files

@@ -1,0 +1,48 @@
+FROM ubuntu:23.10
+
+ARG USERNAME=apprunner
+ARG USER_UID=1001
+ARG USER_GID=${USER_UID}
+
+#COPY ["./Makefile", "./ramdisk-labs/initrd/", "/app"]
+
+# create user, setup dependencies
+#RUN groupadd --gid $USER_GID apprunner
+
+#RUN useradd --uid $USER_UID --gid $USER_GID -m $USERNAME && \
+
+RUN groupadd --gid=${USER_GID} ${USERNAME} && \
+    useradd --uid=${USER_UID} --gid=${USER_GID} -m ${USERNAME} && \
+    #
+    apt-get update && \
+    apt-get -y upgrade && \
+    apt-get install -y sudo && \
+    #
+    echo ${USERNAME} ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/${USERNAME} && \
+    chmod 0440 /etc/sudoers.d/${USERNAME}  && \
+    #
+    apt-get install -y build-essential make musl-tools wget bzip2 unzip && \
+    mkdir -p ./sabotage-headers/ && \
+    wget -P ./sabotage-headers/ https://github.com/sabotage-linux/kernel-headers/archive/refs/heads/master.zip && \
+    unzip ./sabotage-headers/master.zip -d ./sabotage-headers/ && \
+    rm ./sabotage-headers/master.zip && \
+    make -f ./sabotage-headers/kernel-headers-master/Makefile ARCH=x86_64 prefix=/usr DESTDIR=/opt/package install && \
+    echo "FIRST RUN dir: $(pwd)" && \
+    apt clean
+
+
+WORKDIR /home/${USERNAME}/app/
+
+RUN echo "\n======\n current directory: $(pwd) \n======\n" && \
+    wget -P . https://www.busybox.net/downloads/busybox-1.36.1.tar.bz2 && \
+    tar -xvjf ./busybox-1.36.1.tar.bz2 && \
+    rm ./busybox-1.36.1.tar.bz2 && \
+    cd ./busybox-1.36.1/ && \
+    make defconfig && \
+    sed -i 's/^.*CONFIG_STATIC[^_].*$/CONFIG_STATIC=y/g' ./.config && \
+    make -j2 CC="musl-gcc -static" busybox
+
+USER ${USERNAME}
+
+CMD ["./busybox", "whoami"]
+ENTRYPOINT ["/bin/bash"]
