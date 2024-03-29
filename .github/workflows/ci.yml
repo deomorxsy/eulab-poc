@@ -15,7 +15,7 @@ jobs:
       - name: install linux-headers
         run: |
           sudo apt-get update
-          sudo apt-get install linux-headers-generic
+          sudo apt-get install libelf-dev
       - name: build app
         run: make build
       # boot on qemu.
