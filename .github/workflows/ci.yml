@@ -12,10 +12,10 @@ jobs:
       - name: checkout repo
         uses: actions/checkout@v4
       # make build triggers linux + busybox
-      - name: install kernel-headers
+      - name: install linux-headers
         run: |
           sudo apt-get update
-          sudo apt-get install kernel-headers-generic
+          sudo apt-get install linux-headers-generic
       - name: build app
         run: make build
       # boot on qemu.
