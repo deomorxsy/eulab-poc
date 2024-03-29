@@ -17,4 +17,86 @@ jobs:
       # boot on qemu.
       - name: boot app on qemu
         run: make boot
+      # clean assets. This will not clean the artifact copied files, which
+      # interoperates with them being included on .gitignore.
+      - name: clean assets
+        run: make clean
+
+  release:
+    name: release artifacts tarball
+    runs-on: ubuntu-22.04
+    needs: build
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      # so it can access the local repo directory
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # get latest release to automate naming for future release versions
+      - name: get latest release version
+        id: get_latest_release
+        run: |
+          latest_release=$(curl -s "https://api.github.com/repos/${{ github.repository }}/releases/latest" | jq -r '.tag_name')
+          echo "{name}={latest_release}" >> $GITHUB_OUTPUT
+
+      # auto-increment logic based on the latest release name
+      - name: increment release version
+        id: increment_release_version
+        run: |
+          latest_release=$INPUT_LATEST_RELEASE
+          IFS='.' read -r -a version_parts <<< "$latest_release"
+          major="${version_parts[0]}"
+          minor="${version_parts[1]}"
+          patch="${version_parts[2]}"
+          patch=$((patch+1))
+          new_version="$major.$minor.$patch"
+          echo "{name}={new_version}" >> $GITHUB_OUTPUT
+
+        env:
+          INPUT_LATEST_RELEASE: ${{ steps.get_latest_release.outputs.latest_release }}
+
+      # download the artifacts inside artifact directory, which will be available after build
+      - name: download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: artifacts-directory
+          path: ./artifacts/
+
+      # create tarball with the artifacts and place it on the root of the repo
+      - name: create tarball
+        run: |
+          mkdir -p ./release/
+          cp ./artifacts/bzImage ./release/
+          cp ./artifacts/initramfs.cpio.gz ./release/
+          tar -czf eulab.tar.gz -C ./release/ .
+
+      # create the release using the tarball
+      - name: create release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.EULAB_RELEASE_TOKEN }}
+        with:
+          tag_name: v1.0.0
+          release_name: noob-v0
+          body: |
+            This is a tarball release containing the kernel bzImage and the initramfs for early userspace after boot.
+          draft: false
+          prerelease: false
+
+      # upload the release asset to the releases section on github
+      - name: upload release asset
+        id: upload-release-asset
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.EULAB_RELEASE_TOKEN }}
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: eulab.tar.gz
+          asset_name: eulab.tar.gz
+
+
+
 

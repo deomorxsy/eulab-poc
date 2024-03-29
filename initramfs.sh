@@ -45,7 +45,7 @@ function bubo() {
 }
 
 function initgen() {
-cp ./utils/kernel/linux-${KERNEL_VERSION}/arch/x86/boot/bzImage ./
+cp ./utils/kernel/linux-${KERNEL_VERSION}/arch/x86/boot/bzImage ./artifacts/
 
 mkdir -p ./ramdisk/{bin,dev,etc,lib,mnt/root,proc,root,sbin,sys,tmp,var}
 
@@ -89,9 +89,8 @@ EOF
 chmod +x ./ramdisk/init
 cd ./ramdisk/ || return
 #find . -print0 | busybox cpio --null --create --verbose --format=newc | gzip --best > ./initramfz.cpio.gz
-find . -print0 | busybox cpio --null -ov --format=newc | gzip -9 > ../initramfs.cpio.gz
+find . -print0 | busybox cpio --null -ov --format=newc | gzip -9 > ../artifacts/initramfs.cpio.gz
 cd - || return
-#printf "cadeeeeeeeee\n"
 
 }
 
@@ -104,8 +103,8 @@ function qemuit() {
 	# run vm
 	# initramfs-custom2.img created with arch-mkinitcpio.
 	qemu-system-x86_64 \
-		-kernel ./bzImage \
-		-initrd ./initramfs.cpio.gz \
+		-kernel ./artifacts/bzImage \
+		-initrd ./artifacts/initramfs.cpio.gz \
 		-m 1024 \
 		-append 'console=ttyS0' \
         -nographic \
@@ -115,8 +114,34 @@ function qemuit() {
 }
 
 function vacuum() {
-    rm -rf ./utils/kernel/lin*
-    rm -rf .utils/busybox/busy*
+    KERNEL_ART_PATH="./utils/kernel/lin*"
+    BUBO_ART_PATH="./utils/busybox/busy*"
+    SPARSE_ART_PATH="./utils/storage/kernel-hd"
+
+    # kernel
+    if [ -e "$KERNEL_ART_PATH" ] || [ -d "$KERNEL_ART_PATH" ]; then
+        echo "Kernel assets found. Cleaning now..."
+        rm -rf "./utils/kernel/lin*"
+    else
+        echo "No build assets found in the kernel directory."
+    fi
+
+    # busybox
+    if [ -e "$BUBO_ART_PATH" ] || [ -d "$BUBO_ART_PATH" ]; then
+        echo "Busybox assets found. Cleaning now..."
+        rm -rf "./utils/busybox/busy*"
+    else
+        echo "No build assets found in the busybox directory"
+    fi
+
+    # sparse file
+    if [ -e $SPARSE_ART_PATH ]; then
+        shred -z -n 3 $SPARSE_ART_PATH
+        rm $SPARSE_ART_PATH
+    else
+        echo "No sparse file asset found in the storage directory"
+    fi
+
 }
 
 # path to utils passed by the Makefile

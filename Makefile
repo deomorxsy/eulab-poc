@@ -3,6 +3,7 @@ SHELL=/bin/bash
 getkernel=$(shell source ./initramfs.sh; getkernel)
 bubo=$(shell source ./initramfs.sh; bubo)
 initgen=$(shell source ./initramfs.sh; initgen)
+sparse=$(shell source ./initramfs.sh; sparse)
 qemuit=$(shell source ./initramfs.sh; qemuit)
 vacuum=$(shell source ./initramfs.sh; vacuum)
 
