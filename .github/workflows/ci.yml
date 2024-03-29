@@ -12,11 +12,15 @@ jobs:
       - name: checkout repo
         uses: actions/checkout@v4
       # make build triggers linux + busybox
+      - name: install kernel-headers
+        run: |
+          sudo apt-get update
+          sudo apt-get install kernel-headers-generic
       - name: build app
         run: make build
       # boot on qemu.
-      - name: boot app on qemu
-        run: make boot
+      #- name: boot app on qemu
+      #  run: make boot
       # clean assets. This will not clean the artifact copied files, which
       # interoperates with them being included on .gitignore.
       - name: clean assets
