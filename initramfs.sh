@@ -17,9 +17,13 @@ function getkernel() {
 	make defconfig
     #make kvmconfig removed after Linux 5.10
     make kvm_guest.config
+    echo "kvm_guest.config done"
 	make olddefconfig
+    echo "olddefconfig done"
 	make bzImage
-	make -j2
+    echo "bzImage done"
+	make -j4
+    echo "final kernel make done"
 	cd - || return
 }
 
