@@ -22,7 +22,7 @@ function getkernel() {
     echo "olddefconfig done"
 	make bzImage
     echo "bzImage done"
-	make -j4
+    make -j"$(nproc)"
     echo "final kernel make done"
 	cd - || return
 }
@@ -46,6 +46,13 @@ function bubo() {
 	make -j2 CC="musl-gcc -static" busybox || exit
     make install
 	cd - || return
+}
+
+function setbridge() {
+    sudo brctl addbr br0
+    sudo brctl addif br0 eth0
+    sudo ip link set dev br0 up
+    sudo brctl show
 }
 
 function initgen() {
@@ -99,8 +106,23 @@ cd - || return
 }
 
 function sparseFile() {
-    dd if=/dev/zero of=./utils/storage/kernel-hd bs=1M count=2048
-    mkfs.ext4 ./utils/storage/kernel-hd
+    SPARSE="./utils/storage/eulab-hd"
+    dd if=/dev/zero of=$SPARSE bs=1M count=2048
+    mkfs.ext4 $SPARSE
+}
+
+function virtstoraged() {
+    QCOW_FILE="./utils/storage/eulab.qcow2"
+
+    if [ ! -e $QCOW_FILE ]; then
+        echo "Creating qcow2 image..."
+        qemu-img create -f qcow2 $QCOW_FILE 1G
+        guestmount -a $QCOW_FILE -i --ro /mnt
+    elif [ -e $QCOW_FILE ]; then
+        echo "Mounting qcow2 image into /mnt..."
+        guestmount -a $QCOW_FILE -i --ro /mnt
+    fi
+
 }
 
 function qemuit() {
@@ -110,10 +132,16 @@ function qemuit() {
 		-kernel ./artifacts/bzImage \
 		-initrd ./artifacts/initramfs.cpio.gz \
 		-m 1024 \
-		-append 'console=ttyS0' \
+		-append 'console=ttyS0 root=/dev/sda earlyprintk net.ifnames=0' \
         -nographic \
 		-no-reboot \
-        -drive file=./utils/storage/kernel-hd,format=raw
+        -drive file=./utils/storage/eulab--hd,format=raw \
+        -net user,host=10.0.2.10,hostfwd=tcp:127.0.0.1:10021-:22 \
+        -net nic,model=e1000 \
+        #-netdev user,id=mynet0,net=192.168.76.0/24,dhcpstart=192.168.76.9,restrict=yes \
+        #-object filter-dump,id=f1,netdev=mynet0,file=dump.dat \
+        #-nic user,ipv6=off,model=rtl8139,mac=10:10:10:10:10:11
+        #--enable-kvm \
 	#-action panic=-1
 }
 
@@ -144,6 +172,15 @@ function vacuum() {
         rm $SPARSE_ART_PATH
     else
         echo "No sparse file asset found in the storage directory"
+    fi
+
+    # qcow2 disk image
+    QCOW_FILE="./utils/storage/eulab.qcow2"
+
+    if [ -e "$QCOW_FILE" ]; then
+        guestunmount /mnt
+        shred -z -n 3 $QCOW_FILE
+        rm $QCOW_FILE
     fi
 
 }

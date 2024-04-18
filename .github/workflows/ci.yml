@@ -2,7 +2,13 @@ name: eulab build
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - staging
+  pull_request:
+    branches:
+      - staging
+  #push:
+    #branches: [ main ]
 
 jobs:
   build:

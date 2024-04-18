@@ -12,7 +12,8 @@ build: kernel busybox
 
 kernel:
 	@echo "invoking linux..."
-	@$(call getkernel) # builds the kernel and generates bzImage
+	source ./initramfs.sh; getkernel
+	#@$(call getkernel) # builds the kernel and generates bzImage
 
 busybox:
 	@echo "invoking busybox..."

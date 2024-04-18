@@ -28,3 +28,5 @@ run.sh
 bzImage
 initramfz.cpio.gz
 release/
+/utils/storage/
+dump.dat

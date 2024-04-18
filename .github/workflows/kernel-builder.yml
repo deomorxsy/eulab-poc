@@ -1,0 +1,38 @@
+
+name: Compile the Linux kernel and generate bzImage
+
+# This rule triggers when the workflow will run
+on:
+  # run the workflow manually from Actions tab
+  workflow_dispatch:
+
+# jobs can run in sequence or parallel in a workflow
+jobs:
+  # This single job is called "build"
+  build:
+    # Specify the operating system for the runner job
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # the job gets runned into $GITHUB_WORKSPACE, that is the environment variable for the repo
+      - name: Access current repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Build docker image
+        run: |
+          docker build -t kernel-builder .
+
+      - name: Retrieve artifact from docker image
+        run: |
+          docker run -it --name kernel -d kernel-builder:latest
+          docker cp kernel:/kernel.tar.xz ${{ github.workspace }}
+
+      - name: Archive the build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: kernel
+          path: ${{ github.workspace }}/kernel.tar.xz
+
