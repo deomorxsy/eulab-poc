@@ -13,7 +13,7 @@ COPY ["initramfs.sh", "Makefile", "."]
 
 RUN mkdir -p ./utils/busybox/ && \
     make busybox && \
-    cp -r ./utils/busybox/busybox-${BUSYBOX_VERSION}/_install ./_install
+    cp -r ./utils/busybox/busybox-${BUSYBOX_VERSION}/_install ./_install && \
     rm -rf ./utils/busybox/busybox-*
 
 
