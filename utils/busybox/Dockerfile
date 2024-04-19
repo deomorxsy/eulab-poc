@@ -1,9 +1,8 @@
-#FROM alpine:3.18 as builder
 FROM debian:12.1 AS debian-builder
+ARG BUSYBOX_VERSION=1.36.1
 
-# 2. build dependencies
+# build dependencies
 
-#FROM debian-builder AS dependencies
 RUN <<"EOF"
 apt-get update
 apt-get install build-essential wget musl-tools tree make -y
@@ -11,25 +10,21 @@ EOF
 
 WORKDIR /app/
 COPY ["initramfs.sh", "Makefile", "."]
-COPY ["./utils/busybox/busybox-*/", "./utils/busybox/_install/"]
 
-#RUN apk update && apk add build-base libelf make gcc musl-dev
+RUN mkdir -p ./utils/busybox/ && \
+    make busybox && \
+    cp -r ./utils/busybox/busybox-${BUSYBOX_VERSION}/_install ./_install
+    rm -rf ./utils/busybox/busybox-*
 
-#BUSYBOX_VERSION=1.36.1
-CMD ["make", "busybox"]
-#CMD ["make", "clean"]
 
-RUN ls -allht
-RUN tree -C -L 3
+#RUN ls -allht
+#RUN tree -C -L 3
 
 FROM alpine:3.18 as relay
 
 WORKDIR /app/
+
 COPY --from=debian-builder /app/ /app/
-
-#COPY --from=debian-builder ./utils/busybox/_install/ ./utils/busybox/_install/
-
-RUN tar -zcvf ./bubo.tar.gz ./utils/busybox/_install/* && \
-    rm -rf ./utils/*
+RUN tar -zcvf ./bubo.tar.gz ./_install/*
 
 ENTRYPOINT ["/bin/sh"]
