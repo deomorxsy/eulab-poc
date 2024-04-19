@@ -5,7 +5,7 @@ ARG BUSYBOX_VERSION=1.36.1
 
 RUN <<"EOF"
 apt-get update
-apt-get install build-essential wget musl-tools tree make -y
+apt-get install build-essential coreutils wget musl-tools tree make -y
 EOF
 
 WORKDIR /app/
