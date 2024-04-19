@@ -2,7 +2,10 @@ version: "3.8"
 services:
   busybox:
     build:
-      context: "./utils/busybox/"
+      context: "."
+      dockerfile: "./utils/busybox/Dockerfile"
+      tags:
+        - "bubo_builder:01"
     stop_signal: SIGINT
   kernel:
     build:

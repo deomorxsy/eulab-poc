@@ -43,7 +43,13 @@ function bubo() {
 	#cd ./busybox-1.36.1/ || exit
 	make defconfig
 	sed -i 's/^.*CONFIG_STATIC[^_].*$/CONFIG_STATIC=y/g' ./.config
-	make -j2 CC="musl-gcc -static" busybox || exit
+
+    if command -v musl-gcc &>/dev/null; then
+        make -j"$(nproc)" CC="musl-gcc -static" busybox || return
+    else
+        make -j"$(nproc)" busybox || return
+    fi
+
     make install
 	cd - || return
 }
@@ -55,7 +61,8 @@ function setbridge() {
     sudo brctl show
 }
 
-function initgen() {
+function distro_artifact() { #generates the initramfs ramdisk
+# CI todo: copy bzImage artifact from context and place it into current
 cp ./utils/kernel/linux-${KERNEL_VERSION}/arch/x86/boot/bzImage ./artifacts/
 
 mkdir -p ./ramdisk/{bin,dev,etc,lib,mnt/root,proc,root,sbin,sys,tmp,var}
@@ -67,6 +74,9 @@ mkdir -p ./ramdisk/{bin,dev,etc,lib,mnt/root,proc,root,sbin,sys,tmp,var}
 
 # the previous loop didn't do it with sbin and usr
 #
+
+#
+# CI todo: get busybox build from context and place it on current
 cp -a ./utils/busybox/busybox-1.36.1/_install/* ./ramdisk/
 
 
@@ -103,6 +113,7 @@ cd ./ramdisk/ || return
 find . -print0 | busybox cpio --null -ov --format=newc | gzip -9 > ../artifacts/initramfs.cpio.gz
 cd - || return
 
+# ci todo: release as artifact
 }
 
 function sparseFile() {

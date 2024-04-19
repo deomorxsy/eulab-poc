@@ -1,5 +1,5 @@
 
-name: Compile the Linux kernel and generate a bzImage
+name: Compile Busybox and and generate an initramfs
 
 # This rule triggers when the workflow will run
 on:
@@ -23,16 +23,23 @@ jobs:
 
       - name: Build docker image
         run: |
-          docker build -t kernel-builder -f=./utils/kernel/Dockerfile
+          make build_bubo
+          #source ./scripts/ccr.sh; checker
+          #docker compose -f ./compose.yml build busybox
+          #docker build -t bubo-builder -f="./utils/kernel/Dockerfile"
+
 
       - name: Retrieve artifact from docker image
         run: |
-          docker run -it --name kernel -d kernel-builder:latest
-          docker cp kernel:./artifacts/bzImage ${{ github.workspace }}/artifacts/
+          #docker run -it --name bubo -d bubo-builder:latest
+          docker run -it --name bubo -d eulab-poc-busybox:latest
+          docker cp bubo:./bubo.tar.gz ${{ github.workspace }}/artifacts/bubobins/
 
       - name: Archive the build artifact
         uses: actions/upload-artifact@v3
         with:
-          name: kernel
-          path: ${{ github.workspace }}/bzImage
+          name: bubo
+          # image size: 67.3MB
+          # artifact size: 12.9M
+          path: ${{ github.workspace }}/artifacts/bubobins/bubo.tar.gz
 
