@@ -12,24 +12,23 @@ build: kernel busybox
 
 kernel:
 	@echo "invoking linux..."
-	source ./scripts/ccr.sh; checker &&
+	source ./scripts/ccr.sh; checker && \
 	source ./initramfs.sh; getkernel
 
 busybox:
 	@echo "invoking busybox..."
-	source ./scripts/ccr.sh; checker &&
+	source ./scripts/ccr.sh; checker && \
 	source ./initramfs.sh; bubo
 
 distro_artifact:
 	@echo "Generating initramfs..."
-	source ./scripts/ccr.sh; checker &&
+	source ./scripts/ccr.sh; checker && \
 	source ./initramfs.sh; distro_artifact
-	@$(call distro_artifact)
 
 boot: initramfz.cpio.gz bzImage
 	@echo "Booting on QEMU..."
 	source ./initramfs.sh; qemuit
-	@$(call qemuit) # boots the kernel with the initramfs on QEMU
+	# boots the kernel with the initramfs on QEMU
 
 .PHONY: build
 clean:
