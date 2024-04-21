@@ -16,4 +16,6 @@ services:
   kernel:
     build:
       context: "./utils/kernel/"
+      tags:
+        - "linux_build:01"
     stop_signal: SIGINT

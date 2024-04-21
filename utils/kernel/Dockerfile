@@ -55,4 +55,8 @@ echo "final kernel make done"
 cd - || return
 EOF
 
+FROM alpine:3.18 as relay
+ARG KERNEL_VERSION=6.6.22
+WORKDIR /app/
+COPY --from=download-boot ./utils/kernel/linux-${KERNEL_VERSION}/arch/x86/boot/bzImage /app/artifacts/
 

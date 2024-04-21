@@ -1,33 +1,6 @@
-#FROM cgr.dev/chainguard/rust as build
-
-#RUN echo 'fn main() { println!("Hello Rust users!"); }' > hello.rs
-#RUN rustc -C target-feature=+crt-static hello.rs
-
-#FROM alpine:3.18 as distro
-
-#WORKDIR /app/
-#COPY ["./initramfs.sh", "./Makefile", "."]
-#COPY ./scripts/ccr.sh ./scripts/
-
-
-#RUN mkdir -p ./utils/busybox
-#RUN chmod +rx ./initramfs.sh ./scripts/ccr.sh
-#RUN ./scripts/ccr.sh checker
-#RUN ./initramfs.sh bubo
-
-#RUN apk add make gcc
-#RUN source ./scripts/ccr.sh; checker
-#RUN source ./initramfs.sh; bubo
-
-#FROM cgr.dev/chainguard/static:latest
-
-#COPY --from=build /work/hello /hello
-#CMD ["/hello"]
 FROM busybox:1.36.1-musl as builder
+# just to get the statically compiled files
 
-#FROM alpine:3.18 as relay
-# get ci artifact
-#COPY ./utils/kernel/linux-${KERNEL_VERSION}/arch/x86/boot/bzImage ./app/artifacts/
 FROM alpine:3.18 as relay
 
 WORKDIR /ramdisk/
