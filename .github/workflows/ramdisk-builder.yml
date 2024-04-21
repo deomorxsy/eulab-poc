@@ -33,13 +33,13 @@ jobs:
         run: |
           #docker run -it --name bubo -d bubo-builder:latest
           docker run -it --name bubo -d eulab-poc-busybox:latest
-          docker cp bubo:./bubo.tar.gz ${{ github.workspace }}/artifacts/bubobins/
+          docker cp bubo:./initramfs.cpio.gz ${{ github.workspace }}/artifacts/
 
       - name: Archive the build artifact
         uses: actions/upload-artifact@v3
         with:
           name: bubo
-          # image size: 67.3MB
-          # artifact size: 12.9M
-          path: ${{ github.workspace }}/artifacts/bubobins/bubo.tar.gz
+          # image size: 8.48MB
+          # artifact size: 829.6K
+          path: ${{ github.workspace }}/artifacts/initramfs.cpio.gz
 

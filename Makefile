@@ -17,8 +17,11 @@ kernel:
 
 busybox:
 	@echo "invoking busybox..."
-	source ./scripts/ccr.sh; checker && \
-	source ./initramfs.sh; bubo
+	#source ./scripts/ccr.sh; checker && \
+	chmod +rx ./initramfs.sh ./scripts/ccr.sh && \
+	./scripts/ccr.sh checker && \
+    ./initramfs.sh bubo
+	#source ./initramfs.sh; bubo
 
 distro_artifact:
 	@echo "Generating initramfs..."

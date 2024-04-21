@@ -46,6 +46,8 @@ function bubo() {
 
     if command -v musl-gcc &>/dev/null; then
         make -j"$(nproc)" CC="musl-gcc -static" busybox || return
+        #busybox || return
+        #CC="musl-gcc -static" busybox || return
     else
         make -j"$(nproc)" busybox || return
     fi
@@ -67,9 +69,13 @@ cp ./utils/kernel/linux-${KERNEL_VERSION}/arch/x86/boot/bzImage ./artifacts/
 
 mkdir -p ./ramdisk/{bin,dev,etc,lib,mnt/root,proc,root,sbin,sys,tmp,var}
 
+
 #cp ./utils/busybox/busybox-1.36.1/busybox ./ramdisk/
 #for binary in $(./ramdisk/busybox --list); do
 #    ln -s /bin/busybox ./ramdisk/bin/"$binary"
+#    ln -s /bin/busybox ./ramdisk/sbin/"$binary"
+#    ln -s /bin/busybox ./ramdisk/usr/bin/"$binary"
+#    ln -s /bin/busybox ./ramdisk/usr/sbin/"$binary"
 #done
 
 # the previous loop didn't do it with sbin and usr
@@ -148,7 +154,7 @@ function qemuit() {
 		-no-reboot \
         -drive file=./utils/storage/eulab--hd,format=raw \
         -net user,host=10.0.2.10,hostfwd=tcp:127.0.0.1:10021-:22 \
-        -net nic,model=e1000 \
+        -net nic,model=e1000
         #-netdev user,id=mynet0,net=192.168.76.0/24,dhcpstart=192.168.76.9,restrict=yes \
         #-object filter-dump,id=f1,netdev=mynet0,file=dump.dat \
         #-nic user,ipv6=off,model=rtl8139,mac=10:10:10:10:10:11
@@ -198,3 +204,15 @@ function vacuum() {
 
 # path to utils passed by the Makefile
 #bubo "$1"
+#
+#
+# Check the argument passed from the command line
+#if [ "$1" == "bubo" ]; then
+#    bubo
+#elif [ "$1" == "function2" ]; then
+#    function2
+#elif [ "$1" == "function3" ]; then
+#    function3
+#else
+#    echo "Invalid function name. Please specify one of: function1, function2, function3"
+#fi
