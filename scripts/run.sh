@@ -10,13 +10,16 @@ random_mac() {
         $(( RANDOM & 0xff ))
 }
 
+#    -kernel ./artifacts/bzImage \
+#    -initrd ./artifacts/netpowered.cpio.gz \
+
 firstver() {
     # generate a macaddr
     random_mac
 
     qemu-system-x86_64 \
-    -kernel ./artifacts/bzImage \
-    -initrd ./artifacts/netpowered.cpio.gz \
+    -kernel ./artifacts/workflow_piggy \
+    -initrd ./artifacts/workflow_bubo.cpio.gz \
     -m 1024 \
     -append 'console=ttyS0 root=/dev/sda earlyprintk net.ifnames=0' \
     -nographic \

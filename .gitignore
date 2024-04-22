@@ -32,3 +32,7 @@ release/
 dump.dat
 teste/
 Linkage
+/artifacts/bubo.zip
+/artifacts/kernel.zip
+/artifacts/workflow_piggy
+/artifacts/workflow_bubo.cpio.gz

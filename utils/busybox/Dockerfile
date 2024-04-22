@@ -4,7 +4,7 @@ FROM busybox:1.36.1-musl as builder
 FROM alpine:3.18 as relay
 
 WORKDIR /ramdisk/
-RUN mkdir -p ./{bin,dev,etc,lib,mnt/root,proc,root,sbin,sys,tmp,var}
+RUN mkdir -p bin dev etc lib mnt/root proc root sbin sys tmp var
 COPY --from=builder / .
 #RUN ln -s /bin/busybox ./linuxrc
 RUN <<"EOF"
@@ -24,10 +24,25 @@ mount -t sysfs      none       /sys
 mount -t tmpfs      tmpfs       /tmp
 
 sysctl -w kernel.printk="2 4 1 7"
+echo && echo
 
-printf "\nASCIIart didn't go well...
-Boot took $(cut -d' ' -f1 /proc/uptime) seconds btw\n
-"
+cat << 'asciiart'
+  .-"``"-.
+ /  _.-` (_) `-._
+ \   (_.----._)  /
+  \     /    \  /            _       _
+   `\  \____/  /`           | |     | |
+     `-.____.-`   ____ _   _| | ____| | _
+      /      \   / _  ) | | | |/ _  | || \
+     /        \ ( (/ /| |_| | ( ( | | |_) )
+    /_ |  | _\   \____)\____|_|\_||_|____/
+      |  | |                              deomorxsy/eulab-poc
+      |__|__|  ----------------------------------------------
+      /_ | _\   Reboot (01.00.0, r3500-0f87d95)
+               ----------------------------------------------
+asciiart
+
+printf "Boot took $(cut -d' ' -f1 /proc/uptime) seconds btw\n"
 
 # get a shell
 sh

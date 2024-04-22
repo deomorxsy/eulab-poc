@@ -117,6 +117,8 @@ cat << 'asciiart'
                ----------------------------------------------
 asciiart
 
+printf "Boot took $(cut -d' ' -f1 /proc/uptime) seconds btw\n"
+
 # get a shell
 sh
 EOF
