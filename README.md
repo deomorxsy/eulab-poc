@@ -6,6 +6,8 @@
 
 ## Lab setup
 
+Combine a kernel bzImage and a initramfs ramdisk and boot it into QEMU. For actual boot into a machine, create a bootloader.
+
 Use cases:
 1. To get Dockerfile and build context in separate directories, use compose.
 2. To tinker with the builds, use any OCI container runtime

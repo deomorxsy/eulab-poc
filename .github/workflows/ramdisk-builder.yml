@@ -1,5 +1,5 @@
 
-name: initramfs ramdisk
+name: Generate ramdisk
 
 # This rule triggers when the workflow will run
 on:
@@ -32,7 +32,7 @@ jobs:
       - name: Retrieve artifact from docker image
         run: |
           #docker run -it --name bubo -d bubo-builder:latest
-          docker run -it --name bubo -d eulab-poc-busybox:latest
+          docker run -it --name bubo -d bubo_builder:latest
           docker cp bubo:./initramfs.cpio.gz ${{ github.workspace }}/artifacts/
 
       - name: Archive the build artifact
