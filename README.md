@@ -24,3 +24,23 @@ Use cases:
 
 3. The previous statement also means that to be able to build this in a OCI container, it have to be running under a linux distro with previously installed kernel headers, be it a host OS or a guest OS virtual machine. If the compilation is not the point, but the use cases of the binary (get an initramfs ramdisk working) just use the [official image](https://hub.docker.com/_/busybox) as previous step with multi-stage containerfile build.
 
+## Booting the VM
+
+```sh
+cat << EOF > ./scripts/run.sh
+qemu-system-x86_64 \
+    -kernel ./artifacts/bzImage \
+    -initrd ./artifacts/initramfs.cpio.gz \
+    -m 1024 \
+    -append 'console=ttyS0 root=/dev/sda earlyprintk net.ifnames=0' \
+    -nographic \
+    -no-reboot \
+    -drive file=./utils/storage/eulab-hd,format=raw \
+    #-net nic -net user \
+    #-nic user,ipv6=off,model=rtl8139,mac=52:54:XX:XX:XX:XX \
+    -net nic,macaddr=52:54:XX:XX:XX:XX -net vde
+EOF
+
+chmod +x ./scripts/run.sh
+```
+

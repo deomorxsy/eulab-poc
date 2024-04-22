@@ -87,15 +87,38 @@ cp -a ./utils/busybox/busybox-1.36.1/_install/* ./ramdisk/
 
 
 #fakeroot sh -c '
-cat > ./ramdisk/init <<EOF
+cat > ./ramdisk/init <<"EOF"
 #!/bin/busybox sh
 mount -t devtmpfs   devtmpfs    /dev
 mount -t proc       none        /proc
 mount -t sysfs      none       /sys
 mount -t tmpfs      tmpfs       /tmp
 
-sysctl -w kernel.printk="2 4 1 7"
+ip link set lo up                                # Bring up loopback interface
+ip link set eth0 up                              # Bring up Ethernet interface (replace eth0 with your network interface name)
+udhcpc -i eth0
 
+sysctl -w kernel.printk="2 4 1 7"
+echo && echo
+
+cat << 'asciiart'
+  .-"``"-.
+ /  _.-` (_) `-._
+ \   (_.----._)  /
+  \     /    \  /            _       _
+   `\  \____/  /`           | |     | |
+     `-.____.-`   ____ _   _| | ____| | _
+      /      \   / _  ) | | | |/ _  | || \
+     /        \ ( (/ /| |_| | ( ( | | |_) )
+    /_ |  | _\   \____)\____|_|\_||_|____/
+      |  | |                              deomorxsy/eulab-poc
+      |__|__|  ----------------------------------------------
+      /_ | _\   Reboot (01.00.0, r3500-0f87d95)
+               ----------------------------------------------
+asciiart
+
+# get a shell
+sh
 EOF
 # get a shell with sh before the EOF if needed.
 # exit fakeroot context
@@ -103,15 +126,15 @@ EOF
 #'
 
 # append ASCII art
-cat >> ./ramdisk/init <<"EOF"
+#cat >> ./ramdisk/init <<"EOF"
 
-printf "\nASCIIart didn't go well...
-Boot took $(cut -d' ' -f1 /proc/uptime) seconds btw\n
-"
+#printf "\nASCIIart didn't go well...
+#Boot took $(cut -d' ' -f1 /proc/uptime) seconds btw\n
+#"
 
-# get a shell
-sh
-EOF
+## get a shell
+#sh
+#EOF
 
 chmod +x ./ramdisk/init
 cd ./ramdisk/ || return

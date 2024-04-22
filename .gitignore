@@ -22,7 +22,7 @@ logs/
 *.cpio.gz
 
 # misc scripts
-run.sh
+/scripts/netpowa_ioctl.c
 
 # artifacts
 bzImage
