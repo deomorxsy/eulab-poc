@@ -35,6 +35,7 @@ jobs:
       - name: Archive the build artifact
         uses: actions/upload-artifact@v3
         with:
+          # 12.80MB artifact
           name: kernel
-          path: ${{ github.workspace }}/bzImage
+          path: ${{ github.workspace }}/artifacts/bzImage
 
