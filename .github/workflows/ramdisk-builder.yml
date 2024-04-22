@@ -23,7 +23,8 @@ jobs:
 
       - name: Build docker image
         run: |
-          podman build -t bubo_builder:latest -f ./utils/busybox/Dockerfile
+          docker compose -f ./compose.yml --progress=plain build busybox
+          #podman build -t bubo_builder:latest -f ./utils/busybox/Dockerfile
 
 
       - name: Retrieve artifact from docker image
