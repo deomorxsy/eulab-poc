@@ -1,5 +1,5 @@
 
-name: Compile Busybox and and generate an initramfs
+name: initramfs ramdisk
 
 # This rule triggers when the workflow will run
 on:

@@ -1,5 +1,5 @@
 
-name: Compile the Linux kernel and generate a bzImage
+name: Generate bzImage
 
 # This rule triggers when the workflow will run
 on:
