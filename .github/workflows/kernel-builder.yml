@@ -23,12 +23,12 @@ jobs:
 
       - name: Build docker image
         run: |
-          docker build -t linux_build:latest -f=./utils/kernel/Dockerfile
+          podman build -t linux_build:latest -f=./utils/kernel/Dockerfile
 
       - name: Retrieve artifact from docker image
         run: |
-          docker run -it --name kernel -d linux_build:latest
-          docker cp kernel:/app/artifacts/bzImage ${{ github.workspace }}/artifacts/
+          podman run -it --name kernel -d linux_build:latest
+          podman cp kernel:/app/artifacts/bzImage ${{ github.workspace }}/artifacts/
 
       - name: Archive the build artifact
         uses: actions/upload-artifact@v3
