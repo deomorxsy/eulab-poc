@@ -1,8 +1,8 @@
 # eulab-poc
 > simple early userspace lab proof-of-concept for linux kernel dev with qemu and busybox
 
+[![Generate ramdisk](https://github.com/deomorxsy/eulab-poc/actions/workflows/ramdisk-builder.yml/badge.svg)](https://github.com/deomorxsy/eulab-poc/actions/workflows/ramdisk-builder.yml)
 [![Generate bzImage](https://github.com/deomorxsy/eulab-poc/actions/workflows/kernel-builder.yml/badge.svg)](https://github.com/deomorxsy/eulab-poc/actions/workflows/kernel-builder.yml)
-[![Build busybox](https://github.com/deomorxsy/eulab-poc/actions/workflows/bubo-builder.yml/badge.svg)](https://github.com/deomorxsy/eulab-poc/actions/workflows/bubo-builder.yml)
 
 ## Lab setup
 
