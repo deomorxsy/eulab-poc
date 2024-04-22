@@ -17,5 +17,5 @@ services:
     build:
       context: "./utils/kernel/"
       tags:
-        - "linux_build:01"
+        - "localhost:5000/linux_build:latest"
     stop_signal: SIGINT

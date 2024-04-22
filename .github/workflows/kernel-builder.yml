@@ -23,24 +23,13 @@ jobs:
 
       - name: Build docker image
         run: |
-          docker build -t linux_build:latest -f=./utils/kernel/Dockerfile
-
-      - name: Build docker image
-        run: |
           docker run -d -p 5000:5000 --name registry registry:latest
-          docker compose -f ./compose.yml --progress=plain build busybox
-          docker push localhost:5000/bubo_builder:latest
-          #podman build -t bubo_builder:latest -f ./utils/busybox/Dockerfile
-
+          docker compose -f ./compose.yml --progress=plain build kernel
+          docker push localhost:5000/linux_build:latest
 
       - name: Retrieve artifact from docker image
         run: |
-          docker run -it --name bubo -d localhost:5000/bubo_builder:latest
-          docker cp bubo:./initramfs.cpio.gz ${{ github.workspace }}/artifacts/
-
-      - name: Retrieve artifact from docker image
-        run: |
-          docker run -it --name kernel -d linux_build:latest
+          docker run -it --name kernel -d localhost:5000/linux_build:latest
           docker cp kernel:/app/artifacts/bzImage ${{ github.workspace }}/artifacts/
 
       - name: Archive the build artifact
