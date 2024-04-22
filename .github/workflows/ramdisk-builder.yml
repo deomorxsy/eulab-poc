@@ -23,16 +23,13 @@ jobs:
 
       - name: Build docker image
         run: |
-          #make build_bubo
-          #source ./scripts/ccr.sh; checker
-          docker build -t bubo_builder:latest -f ./utils/busybox/Dockerfile
+          podman build -t bubo_builder:latest -f ./utils/busybox/Dockerfile
 
 
       - name: Retrieve artifact from docker image
         run: |
-          #docker run -it --name bubo -d bubo-builder:latest
-          docker run -it --name bubo -d bubo_builder:latest
-          docker cp bubo:./initramfs.cpio.gz ${{ github.workspace }}/artifacts/
+          podman run -it --name bubo -d bubo_builder:latest
+          podman cp bubo:./initramfs.cpio.gz ${{ github.workspace }}/artifacts/
 
       - name: Archive the build artifact
         uses: actions/upload-artifact@v3
