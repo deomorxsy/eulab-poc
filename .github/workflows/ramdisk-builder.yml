@@ -23,13 +23,15 @@ jobs:
 
       - name: Build docker image
         run: |
+          docker run -d -p 5000:5000 --name registry registry:2.7
           docker compose -f ./compose.yml --progress=plain build busybox
+          podman push localhost:5000/bubo_builder:latest
           #podman build -t bubo_builder:latest -f ./utils/busybox/Dockerfile
 
 
       - name: Retrieve artifact from docker image
         run: |
-          podman run -it --name bubo -d localhost/bubo_builder:latest
+          podman run -it --name bubo -d localhost:5000/bubo_builder:latest
           podman cp bubo:./initramfs.cpio.gz ${{ github.workspace }}/artifacts/
 
       - name: Archive the build artifact

@@ -7,7 +7,7 @@ services:
       #dockerfile: "./utils/busybox/Dockerfile.bubo_debug"
       #dockerfile: "./utils/busybox/Dockerfile.muslrust"
       tags:
-        - "localhost/bubo_builder:latest"
+        - "localhost:5000/bubo_builder:latest"
         #- "bubo_builder:02"
         #- "debian_deps:01"
         #- "bubo_debug:01"
