@@ -17,8 +17,8 @@ kernel:
 
 busybox:
 	@echo "invoking busybox..."
-	#source ./scripts/ccr.sh; checker && \
-	chmod +rx ./initramfs.sh ./scripts/ccr.sh && \
+	source ./scripts/ccr.sh; checker && \
+	#chmod +rx ./initramfs.sh ./scripts/ccr.sh && \
 	./scripts/ccr.sh checker && \
     ./initramfs.sh bubo
 	#source ./initramfs.sh; bubo
