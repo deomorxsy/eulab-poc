@@ -16,16 +16,12 @@ for binary in $(./ramdisk/busybox --list); do
 done
 EOF
 
-cat > ./ramdisk/init <<"EOF"
+RUN cat > ./init <<EOF
 #!/bin/busybox sh
 mount -t devtmpfs   devtmpfs    /dev
 mount -t proc       none        /proc
 mount -t sysfs      none       /sys
 mount -t tmpfs      tmpfs       /tmp
-
-ip link set lo up                                # Bring up loopback interface
-ip link set eth0 up                              # Bring up Ethernet interface (replace eth0 with your network interface name)
-udhcpc -i eth0
 
 sysctl -w kernel.printk="2 4 1 7"
 echo && echo
@@ -70,3 +66,4 @@ FROM alpine:3.18 as empty
 COPY --from=packer /app/initramfs.cpio.gz .
 
 ENTRYPOINT ["/bin/sh"]
+
