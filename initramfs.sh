@@ -94,8 +94,8 @@ mount -t proc       none        /proc
 mount -t sysfs      none       /sys
 mount -t tmpfs      tmpfs       /tmp
 
-ip link set lo up                                # Bring up loopback interface
-ip link set eth0 up                              # Bring up Ethernet interface (replace eth0 with your network interface name)
+ip link set lo          # Bring up loopback interface
+ip link set eth0        # Bring up Ethernet interface (replace eth0 with your network interface name)
 udhcpc -i eth0
 
 sysctl -w kernel.printk="2 4 1 7"

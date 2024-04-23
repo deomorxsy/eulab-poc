@@ -1,7 +1,13 @@
+#ARG GIT_HASH
+#ENV GIT_HASH =${git_hash:-0f87d95}
+
 FROM busybox:1.36.1-musl as builder
 # just to get the statically compiled files
 
 FROM alpine:3.18 as relay
+
+ARG GIT_HASH
+ENV GIT_HASH =${git_hash:-"0f87d95"}
 
 WORKDIR /ramdisk/
 RUN mkdir -p bin dev etc lib mnt/root proc root sbin sys tmp var
@@ -16,12 +22,16 @@ for binary in $(./ramdisk/busybox --list); do
 done
 EOF
 
-RUN cat > ./init <<EOF
+cat > ./ramdisk/init <<"EOF"
 #!/bin/busybox sh
 mount -t devtmpfs   devtmpfs    /dev
 mount -t proc       none        /proc
 mount -t sysfs      none       /sys
 mount -t tmpfs      tmpfs       /tmp
+
+ip link set lo up                                # Bring up loopback interface
+ip link set eth0 up                              # Bring up Ethernet interface (replace eth0 with your network interface name)
+udhcpc -i eth0
 
 sysctl -w kernel.printk="2 4 1 7"
 echo && echo
@@ -38,7 +48,7 @@ cat << 'asciiart'
     /_ |  | _\   \____)\____|_|\_||_|____/
       |  | |                              deomorxsy/eulab-poc
       |__|__|  ----------------------------------------------
-      /_ | _\   Reboot (01.00.0, r3500-0f87d95)
+      /_ | _\   Reboot (01.00.0, r3500-${GIT_HASH})
                ----------------------------------------------
 asciiart
 

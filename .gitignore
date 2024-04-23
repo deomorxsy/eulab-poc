@@ -23,6 +23,7 @@ logs/
 
 # misc scripts
 /scripts/netpowa_ioctl.c
+/scripts/another-run.sh
 
 # artifacts
 bzImage

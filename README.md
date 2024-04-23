@@ -6,7 +6,7 @@
 
 ## Lab setup
 
-Combine a kernel bzImage and a initramfs ramdisk and boot it into QEMU. For actual boot into a machine, create a bootloader.
+Combine a kernel bzImage piggy and a initramfs ramdisk and boot it into QEMU. For actual boot into a machine, you will need a bootloader.
 
 Use cases:
 1. To get Dockerfile and build context in separate directories, use compose.
