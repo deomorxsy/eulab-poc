@@ -1,5 +1,5 @@
-#ARG GIT_HASH
-#ENV GIT_HASH=${git_hash:-0f87d95}
+ARG GIT_HASH
+ENV GIT_HASH=${git_hash:-0f87d95}
 
 FROM busybox:1.36.1-musl as builder
 # just to get the statically compiled files
