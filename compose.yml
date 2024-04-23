@@ -1,9 +1,9 @@
 version: "3.8"
 services:
   busybox:
+    environment:
+      - git_hash
     build:
-      environment:
-        - git_hash
       context: "."
       dockerfile: "./utils/busybox/Dockerfile"
       #dockerfile: "./utils/busybox/Dockerfile.bubo_debug"
