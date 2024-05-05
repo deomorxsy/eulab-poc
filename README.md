@@ -8,7 +8,7 @@
 
 Combine a kernel bzImage piggy and a initramfs ramdisk and boot it into QEMU. For actual boot into a machine, you will need a bootloader.
 
-Use cases:
+Usage:
 1. To get Dockerfile and build context in separate directories, use compose.
 2. To tinker with the builds, use any OCI container runtime
 3. To check how automated build fits into this, use Makefile.
@@ -24,23 +24,61 @@ Use cases:
 
 3. The previous statement also means that to be able to build this in a OCI container, it have to be running under a linux distro with previously installed kernel headers, be it a host OS or a guest OS virtual machine. If the compilation is not the point, but the use cases of the binary (get an initramfs ramdisk working) just use the [official image](https://hub.docker.com/_/busybox) as previous step with multi-stage containerfile build.
 
+4. The networking part is being handled by the TUN/TAP device method, using iproute2. The main idea is to run the network scripts as root but not the VM. Also, most of the QEMU documentation references debian-related networking scripts such as ifup, ifdown and ifconfig, which depends on the net-tools package that isn't covered here, and that can be replaced by iproute2.
+
+5. Finally, the VLAN is handled using iproute2. This repo explores these two ways for Bridges:
+- iptables bridge routing
+- tun/tap bridge
+
 ## Booting the VM
 
+The tricky part here is the networking: since busybox is used along with runit in init systems like openrc on gentoo or on alpine, these usually leans towards the [ifupdown-ng](https://manpages.debian.org/testing/ifupdown-ng/interfaces.5.en.html) package for network management alongside iproute2, which is also used in [debian](https://manpages.debian.org/testing/ifupdown-ng/interfaces.5.en.html).
+
+In [qemu-myifup.sh](./scripts/qemu-myifup.sh) as well as in the initramfs are scripts to setup the network in the guest os considering the environment described above.
+
+Next thing is to configure the bridge:
 ```sh
-cat << EOF > ./scripts/run.sh
+# create bridge, set NIC as part of bridge,
+# assign IP with CIDR subnet, bring up the bridge
+ip link add name vmbr0 type bridge
+ip link set enp4s0 master vmbr0
+ip addr add "192.168.0.20/24" dev vmbr0
+ip link set dev vmbr0 up
+```
+
+If in any moment the host connection goes down, bring it back and reassign the bridge master again:
+```sh
+ip link set enp4s0 nomaster
+ip link set enp4s0 master vmbr0
+```
+
+At last, the host OS side, the option ```-net bridge``` automatically uses the helper argument i.e. ```helper=/usr/lib/qemu/qemu-bridge-helper```, but it will raise an error if the user don't have access for its execution.
+
+Permit user to use the bridge helper so you can run rootless QEMU
+```
+chmod +s  /usr/lib/qemu/qemu-bridge-helper
+```
+
+Now for the last setup:
+
+```sh
+cat << EOF > ./scripts/custom.sh
+random_mac
+
 qemu-system-x86_64 \
+    -M pc \
     -kernel ./artifacts/bzImage \
     -initrd ./artifacts/initramfs.cpio.gz \
+    -enable-kvm \
     -m 1024 \
     -append 'console=ttyS0 root=/dev/sda earlyprintk net.ifnames=0' \
     -nographic \
     -no-reboot \
-    -drive file=./utils/storage/eulab-hd,format=raw \
-    #-net nic -net user \
-    #-nic user,ipv6=off,model=rtl8139,mac=52:54:XX:XX:XX:XX \
-    -net nic,macaddr=52:54:XX:XX:XX:XX -net vde
+    -drive file="./utils/storage/eulab-hd",format=raw \
+    -net nic,model=virtio,macaddr="$macaddr" \
+    -net bridge,br=vmbr0
 EOF
 
-chmod +x ./scripts/run.sh
+chmod +x ./scripts/custom.sh
 ```
 
