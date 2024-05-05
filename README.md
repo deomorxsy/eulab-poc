@@ -42,9 +42,7 @@ The tricky part is the networking. As I've wrote [here](https://deomorxsy.github
 
 For the host OS: there are multiple ways to configure, and this repo goes with the tap network interface using the TUN/TAP module, where the packets are routed by a bridge network interface. By default QEMU uses SLIRP, but have problems with performance that are improved with tap/bridge.
 
-For the guest OS: since busybox is used along with runit in init systems like openrc on gentoo or on alpine, these usually leans towards the [ifupdown-ng](https://manpages.debian.org/testing/ifupdown-ng/interfaces.5.en.html) package for network management alongside iproute2, which is also used in [debian](https://manpages.debian.org/testing/ifupdown-ng/interfaces.5.en.html).
-
-This means
+For the guest OS: since busybox is used along with runit's [runsv](https://smarden.org/runit/runsv.8) in init systems like openrc on gentoo or on alpine, these usually leans towards the [ifupdown-ng](https://manpages.debian.org/testing/ifupdown-ng/interfaces.5.en.html) package for network management alongside iproute2, which is also used in debian. This means that configuration can be handled by the ```/etc/network/interfaces``` file to specify how these network interfaces are configured.
 
 In [qemu-myifup.sh](./scripts/qemu-myifup.sh) are the commands to setup the network in the host os considering the environment described above.
 
