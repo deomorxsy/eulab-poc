@@ -32,11 +32,23 @@ Usage:
 
 ## Booting the VM
 
-The tricky part here is the networking: since busybox is used along with runit in init systems like openrc on gentoo or on alpine, these usually leans towards the [ifupdown-ng](https://manpages.debian.org/testing/ifupdown-ng/interfaces.5.en.html) package for network management alongside iproute2, which is also used in [debian](https://manpages.debian.org/testing/ifupdown-ng/interfaces.5.en.html).
+The tricky part is the networking. As I've wrote here, there are 4 main points to grasp it fully:
 
-In [qemu-myifup.sh](./scripts/qemu-myifup.sh) as well as in the initramfs are scripts to setup the network in the guest os considering the environment described above.
+- The relation between devices and interfaces under Linux (specifically for networking)
+- The different packages to achieve this: the old net-tools and iproute2. This guide tries to use iproute2 tooling.
+- Distro-specific scripts that wraps around tooling for virtual network setups. An example is Debian’s ifup(8) and ifdown(8) which is used by LFS (Linux From Scratch) and referenced by the QEMU networking docs. These are cited by a lot of QEMU guides for bridging, also having some late versions distributing similar scripts under /var
+- Deprecated tools that were used in tutorials the last 15 years or so, like brctl that wraps around net-tools.
 
-Next thing is to configure the bridge:
+
+For the host OS: there are multiple ways to configure, and this repo goes with the tap network interface using the TUN/TAP module, where the packets are routed by a bridge network interface. By default QEMU uses SLIRP, but have problems with performance that are improved with tap/bridge.
+
+For the guest OS: since busybox is used along with runit in init systems like openrc on gentoo or on alpine, these usually leans towards the [ifupdown-ng](https://manpages.debian.org/testing/ifupdown-ng/interfaces.5.en.html) package for network management alongside iproute2, which is also used in [debian](https://manpages.debian.org/testing/ifupdown-ng/interfaces.5.en.html).
+
+This means
+
+In [qemu-myifup.sh](./scripts/qemu-myifup.sh) are the commands to setup the network in the host os considering the environment described above.
+
+The first thing is to configure the bridge:
 ```sh
 # create bridge, set NIC as part of bridge,
 # assign IP with CIDR subnet, bring up the bridge
@@ -52,7 +64,7 @@ ip link set enp4s0 nomaster
 ip link set enp4s0 master vmbr0
 ```
 
-At last, the host OS side, the option ```-net bridge``` automatically uses the helper argument i.e. ```helper=/usr/lib/qemu/qemu-bridge-helper```, but it will raise an error if the user don't have access for its execution.
+At last, on the host OS side, the option ```-net bridge``` automatically uses the helper argument i.e. ```helper=/usr/lib/qemu/qemu-bridge-helper```, but it will raise an error if the user don't have access for its execution.
 
 Permit user to use the bridge helper so you can run rootless QEMU
 ```
