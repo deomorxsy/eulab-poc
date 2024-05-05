@@ -32,7 +32,7 @@ Usage:
 
 ## Booting the VM
 
-The tricky part is the networking. As I've wrote here, there are 4 main points to grasp it fully:
+The tricky part is the networking. As I've wrote [here](https://deomorxsy.github.io/tech/tap-virtual-networking-for-qemu/), there are 4 main points to grasp it fully:
 
 - The relation between devices and interfaces under Linux (specifically for networking)
 - The different packages to achieve this: the old net-tools and iproute2. This guide tries to use iproute2 tooling.
