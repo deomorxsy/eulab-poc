@@ -9,7 +9,9 @@ set_bridge() {
 
     ip link set "$INTERFACE" master "$BRIDGE"
     #bridge link
-    #
+    # here the network connection is dead. Run the command below to return
+    # ip link set enp4s0 nomaster
+
 }
 
 clean_bridge() {
