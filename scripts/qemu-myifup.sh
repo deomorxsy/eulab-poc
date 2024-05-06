@@ -22,25 +22,4 @@ ip link set dev vmbr0 up
 ip link set enp4s0 nomaster
 ip link set enp4s0 master vmbr0
 
-# on the guest os vm
-#
-# 1. statically via udhcpc
-ip addr add "$(udhcpc 2>&1 | awk 'NR==4 {print $4}')" dev eth0
-#
-# 2. statically via iproute2
-#/sbin/ip a add 192.168.0.27/24 dev "$1" DOES NOT WORK, USE UDHCPC
-#
-#
-# 3. dinamically, just run udhcpc
-# run these two before udhcpc if raising error:
-#
-# udhcpc: sendto: Network is down
-# udhcpc: read error: Network is down, reopening socket
 
-#/sbin/ip link set eth0 up
-#/sbin/ip link set lo up
-# udhcpc
-#
-# if enp4s0 is down on host, run:
-#; sudo ip link set enp4s0 nomaster
-#; ip link set enp4s0 master vmbr0
